@@ -12,18 +12,21 @@ const searchEl = document.getElementById('search');
 const childEl = document.getElementById('child-filter');
 
 const categories = [
-  { id: 'nature', label: 'Природа и хайкинг', icon: '🚶' },
-  { id: 'beaches', label: 'Пляжи', icon: '🏖️' },
-  { id: 'pools', label: 'Природные бассейны', icon: '💧' },
-  { id: 'viewpoints', label: 'Смотровые площадки', icon: '<svg class="binocular-icon" viewBox="0 0 32 24" aria-hidden="true"><path d="M5 3h6l3 9h4l3-9h6l3 15h-8l-3-7h-4l-3 7H2L5 3Z" fill="currentColor"/><circle cx="7" cy="18" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="25" cy="18" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11 5h10" stroke="currentColor" stroke-width="2"/></svg>' },
-  { id: 'towns', label: 'Деревни и города', icon: '🏘️' },
-  { id: 'history', label: 'История и археология', icon: '🏛️' }
+  { id: 'nature', label: 'Природа и хайкинг', icon: '<i class="fa-solid fa-person-hiking" aria-hidden="true"></i>' },
+  { id: 'beaches', label: 'Пляжи', icon: '<i class="fa-solid fa-umbrella-beach" aria-hidden="true"></i>' },
+  { id: 'pools', label: 'Природные бассейны', icon: '<i class="fa-solid fa-person-swimming" aria-hidden="true"></i>' },
+  { id: 'viewpoints', label: 'Смотровые площадки', icon: '<i class="fa-solid fa-binoculars" aria-hidden="true"></i>' },
+  { id: 'towns', label: 'Деревни и города', icon: '<i class="fa-solid fa-house" aria-hidden="true"></i>' },
+  { id: 'history', label: 'История и археология', icon: '<i class="fa-solid fa-landmark" aria-hidden="true"></i>' }
 ];
 const categoryById = Object.fromEntries(categories.map(category => [category.id, category]));
-const subcategories = { beaches: [{ id: 'wild', label: 'Дикие' }, { id: 'tourist', label: 'Туристические' }] };
+const subcategories = { beaches: [
+  { id: 'wild', label: 'Дикие', icon: '<i class="fa-solid fa-water" aria-hidden="true"></i>' },
+  { id: 'tourist', label: 'Туристические', icon: '<i class="fa-solid fa-umbrella-beach" aria-hidden="true"></i>' }
+] };
 function categoryFilterMarkup(category) {
   const children = subcategories[category.id] || [];
-  const childMarkup = children.map(sub => '<label class="filter subcategory-filter"><input type="checkbox" data-category="' + category.id + '" data-subcategory="' + sub.id + '" checked><span>' + sub.label + '</span></label>').join('');
+  const childMarkup = children.map(sub => '<label class="filter subcategory-filter"><input type="checkbox" data-category="' + category.id + '" data-subcategory="' + sub.id + '" checked><span class="legend-icon">' + sub.icon + '</span><span>' + sub.label + '</span></label>').join('');
   return '<div class="category-group"><label class="filter category-filter"><input type="checkbox" data-category="' + category.id + '" checked><span class="legend-icon">' + category.icon + '</span><span>' + category.label + '</span></label>' + (children.length ? '<div class="subcategory-list">' + childMarkup + '</div>' : '') + '</div>';
 }
 function syncCategoryCheckbox(categoryId) {
@@ -37,11 +40,13 @@ function syncCategoryCheckbox(categoryId) {
 function categoryInfo(id) {
   return categoryById[id] || { id, label: 'Без категории', icon: '❔' };
 }
-function markerIcon(categoryId) {
+function markerIcon(categoryId, subcategory) {
   const category = categoryInfo(categoryId);
+  const sub = (subcategories[categoryId] || []).find(item => item.id === subcategory);
+  const icon = sub?.icon || category.icon;
   return L.divIcon({
     className: 'category-marker-wrap',
-    html: `<span class="category-marker" role="img" aria-label="${esc(category.label)}">${category.icon}</span>`,
+    html: `<span class="category-marker" role="img" aria-label="${esc(category.label)}">${icon}</span>`,
     iconSize: [36, 36],
     iconAnchor: [18, 18],
     popupAnchor: [0, -17]
@@ -89,7 +94,7 @@ fetch('data/places.json')
     allPlaces = data.filter(p => Number.isFinite(Number(p.latitude)) && Number.isFinite(Number(p.longitude)));
     categoriesEl.innerHTML = categories.map(categoryFilterMarkup).join('');
     allPlaces.forEach(p => {
-      const marker = L.marker([p.latitude,p.longitude], { icon: markerIcon(p.category) });
+      const marker = L.marker([p.latitude,p.longitude], { icon: markerIcon(p.category, p.subcategory) });
       marker.bindPopup(`<div class="popup-title">${esc(p.name)}</div><div class="popup-meta">${esc(categoryInfo(p.category).label + (p.subcategory ? ' · ' + ((subcategories[p.category] || []).find(s => s.id === p.subcategory)?.label || p.subcategory) : ''))}</div><div class="popup-description">${esc(p.description || '')}</div><div class="popup-child">${esc(p.child_suitability || 'Детская пригодность не оценена')}</div><a class="popup-link" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+', Gran Canaria, Spain '+p.latitude+','+p.longitude)}&hl=en">Открыть в Google Maps ↗</a>`);
       markers.set(p.id, marker);
     });
