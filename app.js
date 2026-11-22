@@ -90,7 +90,7 @@ fetch('data/places.json')
     categoriesEl.innerHTML = categories.map(categoryFilterMarkup).join('');
     allPlaces.forEach(p => {
       const marker = L.marker([p.latitude,p.longitude], { icon: markerIcon(p.category) });
-      marker.bindPopup(`<div class="popup-title">${esc(p.name)}</div><div class="popup-meta">${esc(categoryInfo(p.category).label + (p.subcategory ? ' · ' + ((subcategories[p.category] || []).find(s => s.id === p.subcategory)?.label || p.subcategory) : ''))}</div><div class="popup-description">${esc(p.description || '')}</div><div class="popup-child">${esc(p.child_suitability || 'Детская пригодность не оценена')}</div><a class="popup-link" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.latitude+','+p.longitude)}">Открыть в Google Maps ↗</a>`);
+      marker.bindPopup(`<div class="popup-title">${esc(p.name)}</div><div class="popup-meta">${esc(categoryInfo(p.category).label + (p.subcategory ? ' · ' + ((subcategories[p.category] || []).find(s => s.id === p.subcategory)?.label || p.subcategory) : ''))}</div><div class="popup-description">${esc(p.description || '')}</div><div class="popup-child">${esc(p.child_suitability || 'Детская пригодность не оценена')}</div><a class="popup-link" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.latitude+','+p.longitude)}&hl=en">Открыть в Google Maps ↗</a>`);
       markers.set(p.id, marker);
     });
     render();
