@@ -8,14 +8,14 @@
 .legend-icon i{display:inline-block;width:22px;text-align:center;font-size:16px;line-height:1}.category-marker i{font-size:19px;line-height:1}.subcategory-filter .legend-icon i{font-size:14px}
 
 /* Visit priority changes the icon color only; marker background stays transparent. */
-.category-marker.priority-must{color:#16a34a}
-.category-marker.priority-should{color:#d97706}
-.category-marker.priority-optional{color:#8492a6}
-.category-marker.priority-unset{color:#64748b}
+.category-marker.priority-must{color:#8da101}
+.category-marker.priority-should{color:#e69875}
+.category-marker.priority-optional{color:#829181}
+.category-marker.priority-unset{color:#829181}
 .popup-priority{display:inline-block;margin:0 0 7px;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:750}
-.popup-priority.priority-must{background:#dcfce7;color:#166534}
-.popup-priority.priority-should{background:#fef3c7;color:#92400e}
-.popup-priority.priority-optional{background:#e2e8f0;color:#475569}
-.popup-priority.priority-unset{background:#f1f5f9;color:#475569}
+.popup-priority.priority-must{background:#e5e9d5;color:#5b6d3b}
+.popup-priority.priority-should{background:#f4e8cc;color:#9b654f}
+.popup-priority.priority-optional{background:#e4e7df;color:#59645a}
+.popup-priority.priority-unset{background:#e4e7df;color:#59645a}
 
-.priority-legend{display:grid;gap:7px;margin:12px 0 4px 29px;font-size:12px;color:#53605a}.priority-legend>div{display:flex;align-items:center;gap:8px}.priority-dot{width:12px;height:12px;flex:0 0 12px;border-radius:50%;display:inline-block}.priority-dot.priority-must{background:#16a34a}.priority-dot.priority-should{background:#e9a23b}.priority-dot.priority-optional{background:#8492a6}
+.priority-legend{display:grid;gap:7px;margin:12px 0 4px 29px;font-size:12px;color:#53605a}.priority-legend>div{display:flex;align-items:center;gap:8px}.priority-dot{width:12px;height:12px;flex:0 0 12px;border-radius:50%;display:inline-block}.priority-dot.priority-must{background:#8da101}.priority-dot.priority-should{background:#e9a23b}.priority-dot.priority-optional{background:#829181}
