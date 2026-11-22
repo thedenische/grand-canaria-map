@@ -17,8 +17,8 @@ const categories = [
   { id: 'pools', label: 'Природные бассейны', icon: '<i class="fa-solid fa-person-swimming" aria-hidden="true"></i>' },
   { id: 'viewpoints', label: 'Смотровые площадки', icon: '<i class="fa-solid fa-binoculars" aria-hidden="true"></i>' },
   { id: 'towns', label: 'Деревни и города', icon: '<i class="fa-solid fa-house" aria-hidden="true"></i>' },
-  { id: 'history', label: 'История и археология', icon: '<i class="fa-solid fa-landmark" aria-hidden="true"></i>' }
-  ,{ id: 'attractions', label: 'Парки и развлечения', icon: '<i class="fa-solid fa-ticket" aria-hidden="true"></i>' }
+  { id: 'history', label: 'История и археология', icon: '<i class="fa-solid fa-landmark" aria-hidden="true"></i>' },
+  { id: 'attractions', label: 'Парки и развлечения', icon: '<i class="fa-solid fa-ticket" aria-hidden="true"></i>' }
 ];
 const categoryById = Object.fromEntries(categories.map(category => [category.id, category]));
 const subcategories = { beaches: [
