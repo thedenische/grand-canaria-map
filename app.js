@@ -15,7 +15,7 @@ const categories = [
   { id: 'nature', label: 'Природа и хайкинг', icon: '🚶' },
   { id: 'beaches', label: 'Пляжи', icon: '🏖️' },
   { id: 'pools', label: 'Природные бассейны', icon: '💧' },
-  { id: 'viewpoints', label: 'Смотровые площадки', icon: '🔭' },
+  { id: 'viewpoints', label: 'Смотровые площадки', icon: '<svg class="binocular-icon" viewBox="0 0 32 24" aria-hidden="true"><path d="M5 3h6l3 9h4l3-9h6l3 15h-8l-3-7h-4l-3 7H2L5 3Z" fill="currentColor"/><circle cx="7" cy="18" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="25" cy="18" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11 5h10" stroke="currentColor" stroke-width="2"/></svg>' },
   { id: 'towns', label: 'Деревни и города', icon: '🏘️' },
   { id: 'history', label: 'История и археология', icon: '🏛️' }
 ];
