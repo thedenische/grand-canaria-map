@@ -83,9 +83,10 @@ function render() {
   const selectedCategories = new Set([...categoriesEl.querySelectorAll('input[data-category]:not([data-subcategory]):checked')].map(x => x.dataset.category));
   const selectedSubcategories = new Set([...categoriesEl.querySelectorAll('input[data-subcategory]:checked')].map(x => x.dataset.category + ':' + x.dataset.subcategory));
   const child = childEl.value;
+  const selectedPriorities = new Set([...document.querySelectorAll('input[data-priority]:checked')].map(x => x.dataset.priority));
   const visible = allPlaces.filter(p => {
     const hay = [p.name,p.category,p.description,p.child_suitability].join(' ').toLocaleLowerCase('ru');
-    return (!query || hay.includes(query)) && (selectedCategories.has(p.category) || (subcategories[p.category] || []).some(sub => selectedSubcategories.has(p.category + ':' + sub.id))) && (!subcategories[p.category] || selectedSubcategories.has(p.category + ':' + p.subcategory)) && (child === 'all' || childClass(p) === child);
+    return (!query || hay.includes(query)) && (selectedCategories.has(p.category) || (subcategories[p.category] || []).some(sub => selectedSubcategories.has(p.category + ':' + sub.id))) && (!subcategories[p.category] || selectedSubcategories.has(p.category + ':' + p.subcategory)) && (child === 'all' || childClass(p) === child) && (!p.visit_priority || selectedPriorities.has(p.visit_priority));
   });
   document.getElementById('count').textContent = visible.length;
   placesEl.innerHTML = visible.map(p => `<article class="place" data-id="${esc(p.id)}"><strong>${esc(p.name)}</strong><small>${esc(categoryInfo(p.category).label)}</small><small class="child">${esc(p.child_suitability || 'Детская пригодность не оценена')}</small></article>`).join('') || '<div class="hint">По заданным фильтрам ничего не найдено.</div>';
@@ -123,6 +124,7 @@ fetch('data/places.json')
   })
   .catch(err => { document.getElementById('count').textContent = 'Ошибка'; placesEl.textContent = err.message; });
 [searchEl, childEl].forEach(el => el.addEventListener('input', render));
+document.querySelectorAll('input[data-priority]').forEach(el => el.addEventListener('change', render));
 categoriesEl.addEventListener('change', e => {
   const input = e.target;
   if (!input.matches('input[data-category]')) return;
