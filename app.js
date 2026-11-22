@@ -11,22 +11,23 @@ const placesEl = document.getElementById('places');
 const searchEl = document.getElementById('search');
 const childEl = document.getElementById('child-filter');
 
-const categoryIcons = {
-  'Hiking & nature': '🌲',
-  'Wild beaches': '🏖️',
-  'Natural pools': '🌊',
-  'Viewpoints': '🔭',
-  'Geology / viewpoints': '🪨',
-  'Geology / culture': '🗿',
-  'Villages / culture': '🏘️'
-};
-function categoryIcon(category) {
-  return categoryIcons[category] || '📍';
+const categories = [
+  { id: 'nature', label: 'Природа и хайкинг', icon: '🌲' },
+  { id: 'beaches', label: 'Пляжи', icon: '🏖️' },
+  { id: 'pools', label: 'Природные бассейны', icon: '💧' },
+  { id: 'viewpoints', label: 'Смотровые площадки', icon: '📍' },
+  { id: 'towns', label: 'Деревни и города', icon: '🏘️' },
+  { id: 'history', label: 'История и археология', icon: '🏛️' }
+];
+const categoryById = Object.fromEntries(categories.map(category => [category.id, category]));
+function categoryInfo(id) {
+  return categoryById[id] || { id, label: 'Без категории', icon: '❔' };
 }
-function markerIcon(category) {
+function markerIcon(categoryId) {
+  const category = categoryInfo(categoryId);
   return L.divIcon({
     className: 'category-marker-wrap',
-    html: `<span class="category-marker" role="img" aria-label="${esc(category || 'Без категории')}">${categoryIcon(category)}</span>`,
+    html: `<span class="category-marker" role="img" aria-label="${esc(category.label)}">${category.icon}</span>`,
     iconSize: [36, 36],
     iconAnchor: [18, 18],
     popupAnchor: [0, -17]
@@ -48,10 +49,10 @@ function render() {
   const child = childEl.value;
   const visible = allPlaces.filter(p => {
     const hay = [p.name,p.category,p.description,p.child_suitability].join(' ').toLocaleLowerCase('ru');
-    return (!query || hay.includes(query)) && (!checked.length || checked.includes(p.category || 'Без категории')) && (child === 'all' || childClass(p.child_suitability) === child);
+    return (!query || hay.includes(query)) && checked.includes(p.category) && (child === 'all' || childClass(p.child_suitability) === child);
   });
   document.getElementById('count').textContent = visible.length;
-  placesEl.innerHTML = visible.map(p => `<article class="place" data-id="${esc(p.id)}"><strong>${esc(p.name)}</strong><small>${esc(p.category || 'Без категории')}</small><small class="child">${esc(p.child_suitability || 'Детская пригодность не оценена')}</small></article>`).join('') || '<div class="hint">По заданным фильтрам ничего не найдено.</div>';
+  placesEl.innerHTML = visible.map(p => `<article class="place" data-id="${esc(p.id)}"><strong>${esc(p.name)}</strong><small>${esc(categoryInfo(p.category).label)}</small><small class="child">${esc(p.child_suitability || 'Детская пригодность не оценена')}</small></article>`).join('') || '<div class="hint">По заданным фильтрам ничего не найдено.</div>';
   for (const [id, marker] of markers) {
     const p = allPlaces.find(x => x.id === id);
     if (visible.includes(p)) marker.addTo(map); else map.removeLayer(marker);
@@ -69,8 +70,7 @@ fetch('data/places.json')
   .then(r => { if (!r.ok) throw new Error('Не удалось загрузить JSON каталога'); return r.json(); })
   .then(data => {
     allPlaces = data.filter(p => Number.isFinite(Number(p.latitude)) && Number.isFinite(Number(p.longitude)));
-    const cats = [...new Set(allPlaces.map(p => p.category || 'Без категории'))].sort((a,b) => a.localeCompare(b,'ru'));
-    categoriesEl.innerHTML = cats.map(c => `<label class="filter"><input type="checkbox" value="${esc(c)}" checked> ${esc(c)}</label>`).join('');
+    categoriesEl.innerHTML = categories.map(category => `<label class="filter"><input type="checkbox" value="${category.id}" checked><span class="legend-icon">${category.icon}</span><span>${category.label}</span></label>`).join('');
     allPlaces.forEach(p => {
       const marker = L.marker([p.latitude,p.longitude], { icon: markerIcon(p.category) });
       marker.bindPopup(`<div class="popup-title">${esc(p.name)}</div><div class="popup-meta">${esc(p.category || 'Без категории')}</div><div class="popup-description">${esc(p.description || '')}</div><div class="popup-child">${esc(p.child_suitability || 'Детская пригодность не оценена')}</div><a class="popup-link" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.latitude+','+p.longitude)}">Открыть в Google Maps ↗</a>`);
