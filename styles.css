@@ -7,15 +7,17 @@
 /* Font Awesome Free icons */
 .legend-icon i{display:inline-block;width:22px;text-align:center;font-size:16px;line-height:1}.category-marker i{font-size:19px;line-height:1}.subcategory-filter .legend-icon i{font-size:14px}
 
-/* Visit priority changes the icon color only; marker background stays transparent. */
-.category-marker.priority-must{color:#8da101}
-.category-marker.priority-should{color:#e69875}
-.category-marker.priority-optional{color:#829181}
-.category-marker.priority-unset{color:#829181}
+/* Marker: dark category icon inside a priority-colored outline. */
+.category-marker{width:34px;height:34px;border:2px solid #829181;border-radius:50%;background:#f7f7f2;color:#59645a;box-shadow:0 1px 3px rgba(35,45,35,.18);font-size:17px}
+.category-marker i{color:inherit;font-size:16px;line-height:1}
+.category-marker.priority-must{border-color:#8da101;color:#59645a}
+.category-marker.priority-should{border-color:#e69875;color:#59645a}
+.category-marker.priority-optional{border-color:#829181;color:#59645a}
+.category-marker.priority-unset{border-color:#829181;color:#59645a}
 .popup-priority{display:inline-block;margin:0 0 7px;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:750}
 .popup-priority.priority-must{background:#e5e9d5;color:#5b6d3b}
 .popup-priority.priority-should{background:#f4e8cc;color:#9b654f}
 .popup-priority.priority-optional{background:#e4e7df;color:#59645a}
 .popup-priority.priority-unset{background:#e4e7df;color:#59645a}
 
-.priority-legend{display:grid;gap:7px;margin:12px 0 4px 29px;font-size:12px;color:#53605a}.priority-legend>div{display:flex;align-items:center;gap:8px}.priority-dot{width:12px;height:12px;flex:0 0 12px;border-radius:50%;display:inline-block}.priority-dot.priority-must{background:#8da101}.priority-dot.priority-should{background:#e9a23b}.priority-dot.priority-optional{background:#829181}
+.priority-legend{display:grid;gap:7px;margin:12px 0 4px 29px;font-size:12px;color:#53605a}.priority-legend>div{display:flex;align-items:center;gap:8px}.priority-dot{width:12px;height:12px;flex:0 0 12px;border-radius:50%;display:inline-block;background:transparent;border:2px solid}.priority-dot.priority-must{border-color:#8da101}.priority-dot.priority-should{border-color:#e69875}.priority-dot.priority-optional{border-color:#829181}
