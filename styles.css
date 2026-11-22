@@ -6,3 +6,14 @@
 
 /* Font Awesome Free icons */
 .legend-icon i{display:inline-block;width:22px;text-align:center;font-size:16px;line-height:1}.category-marker i{font-size:19px;line-height:1}.subcategory-filter .legend-icon i{font-size:14px}
+
+/* Visit priority is encoded by marker color; icon shape remains the category. */
+.category-marker.priority-must{background:#16a34a;color:#fff}
+.category-marker.priority-should{background:#e9a23b;color:#202821}
+.category-marker.priority-optional{background:#8492a6;color:#fff}
+.category-marker.priority-unset{background:#fff;color:#38443a}
+.popup-priority{display:inline-block;margin:0 0 7px;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:750}
+.popup-priority.priority-must{background:#dcfce7;color:#166534}
+.popup-priority.priority-should{background:#fef3c7;color:#92400e}
+.popup-priority.priority-optional{background:#e2e8f0;color:#475569}
+.popup-priority.priority-unset{background:#f1f5f9;color:#475569}
