@@ -12,14 +12,28 @@ const searchEl = document.getElementById('search');
 const childEl = document.getElementById('child-filter');
 
 const categories = [
-  { id: 'nature', label: 'Природа и хайкинг', icon: '🌲' },
+  { id: 'nature', label: 'Природа и хайкинг', icon: '🚶' },
   { id: 'beaches', label: 'Пляжи', icon: '🏖️' },
   { id: 'pools', label: 'Природные бассейны', icon: '💧' },
-  { id: 'viewpoints', label: 'Смотровые площадки', icon: '📍' },
+  { id: 'viewpoints', label: 'Смотровые площадки', icon: '🔭' },
   { id: 'towns', label: 'Деревни и города', icon: '🏘️' },
   { id: 'history', label: 'История и археология', icon: '🏛️' }
 ];
 const categoryById = Object.fromEntries(categories.map(category => [category.id, category]));
+const subcategories = { beaches: [{ id: 'wild', label: 'Дикие' }, { id: 'tourist', label: 'Туристические' }] };
+function categoryFilterMarkup(category) {
+  const children = subcategories[category.id] || [];
+  const childMarkup = children.map(sub => '<label class="filter subcategory-filter"><input type="checkbox" data-category="' + category.id + '" data-subcategory="' + sub.id + '" checked><span>' + sub.label + '</span></label>').join('');
+  return '<div class="category-group"><label class="filter category-filter"><input type="checkbox" data-category="' + category.id + '" checked><span class="legend-icon">' + category.icon + '</span><span>' + category.label + '</span></label>' + (children.length ? '<div class="subcategory-list">' + childMarkup + '</div>' : '') + '</div>';
+}
+function syncCategoryCheckbox(categoryId) {
+  const parent = categoriesEl.querySelector('input[data-category="' + categoryId + '"]:not([data-subcategory])');
+  const children = [...categoriesEl.querySelectorAll('input[data-category="' + categoryId + '"][data-subcategory]')];
+  if (!parent || !children.length) return;
+  const selected = children.filter(input => input.checked).length;
+  parent.checked = selected === children.length;
+  parent.indeterminate = selected > 0 && selected < children.length;
+}
 function categoryInfo(id) {
   return categoryById[id] || { id, label: 'Без категории', icon: '❔' };
 }
@@ -47,11 +61,12 @@ function esc(value='') {
 }
 function render() {
   const query = searchEl.value.trim().toLocaleLowerCase('ru');
-  const checked = [...categoriesEl.querySelectorAll('input:checked')].map(x => x.value);
+  const selectedCategories = new Set([...categoriesEl.querySelectorAll('input[data-category]:not([data-subcategory]):checked')].map(x => x.dataset.category));
+  const selectedSubcategories = new Set([...categoriesEl.querySelectorAll('input[data-subcategory]:checked')].map(x => x.dataset.category + ':' + x.dataset.subcategory));
   const child = childEl.value;
   const visible = allPlaces.filter(p => {
     const hay = [p.name,p.category,p.description,p.child_suitability].join(' ').toLocaleLowerCase('ru');
-    return (!query || hay.includes(query)) && checked.includes(p.category) && (child === 'all' || childClass(p) === child);
+    return (!query || hay.includes(query)) && (selectedCategories.has(p.category) || (subcategories[p.category] || []).some(sub => selectedSubcategories.has(p.category + ':' + sub.id))) && (!subcategories[p.category] || selectedSubcategories.has(p.category + ':' + p.subcategory)) && (child === 'all' || childClass(p) === child);
   });
   document.getElementById('count').textContent = visible.length;
   placesEl.innerHTML = visible.map(p => `<article class="place" data-id="${esc(p.id)}"><strong>${esc(p.name)}</strong><small>${esc(categoryInfo(p.category).label)}</small><small class="child">${esc(p.child_suitability || 'Детская пригодность не оценена')}</small></article>`).join('') || '<div class="hint">По заданным фильтрам ничего не найдено.</div>';
@@ -72,10 +87,10 @@ fetch('data/places.json')
   .then(r => { if (!r.ok) throw new Error('Не удалось загрузить JSON каталога'); return r.json(); })
   .then(data => {
     allPlaces = data.filter(p => Number.isFinite(Number(p.latitude)) && Number.isFinite(Number(p.longitude)));
-    categoriesEl.innerHTML = categories.map(category => `<label class="filter"><input type="checkbox" value="${category.id}" checked><span class="legend-icon">${category.icon}</span><span>${category.label}</span></label>`).join('');
+    categoriesEl.innerHTML = categories.map(categoryFilterMarkup).join('');
     allPlaces.forEach(p => {
       const marker = L.marker([p.latitude,p.longitude], { icon: markerIcon(p.category) });
-      marker.bindPopup(`<div class="popup-title">${esc(p.name)}</div><div class="popup-meta">${esc(categoryInfo(p.category).label)}</div><div class="popup-description">${esc(p.description || '')}</div><div class="popup-child">${esc(p.child_suitability || 'Детская пригодность не оценена')}</div><a class="popup-link" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.latitude+','+p.longitude)}">Открыть в Google Maps ↗</a>`);
+      marker.bindPopup(`<div class="popup-title">${esc(p.name)}</div><div class="popup-meta">${esc(categoryInfo(p.category).label + (p.subcategory ? ' · ' + ((subcategories[p.category] || []).find(s => s.id === p.subcategory)?.label || p.subcategory) : ''))}</div><div class="popup-description">${esc(p.description || '')}</div><div class="popup-child">${esc(p.child_suitability || 'Детская пригодность не оценена')}</div><a class="popup-link" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.latitude+','+p.longitude)}">Открыть в Google Maps ↗</a>`);
       markers.set(p.id, marker);
     });
     render();
@@ -89,5 +104,12 @@ fetch('data/places.json')
   })
   .catch(err => { document.getElementById('count').textContent = 'Ошибка'; placesEl.textContent = err.message; });
 [searchEl, childEl].forEach(el => el.addEventListener('input', render));
-categoriesEl.addEventListener('change', render);
+categoriesEl.addEventListener('change', e => {
+  const input = e.target;
+  if (!input.matches('input[data-category]')) return;
+  const categoryId = input.dataset.category;
+  if (!input.dataset.subcategory) categoriesEl.querySelectorAll('input[data-category="' + categoryId + '"][data-subcategory]').forEach(child => { child.checked = input.checked; });
+  else syncCategoryCheckbox(categoryId);
+  render();
+});
 placesEl.addEventListener('click', e => { const card = e.target.closest('.place'); if (card) focusPlace(card.dataset.id); });
