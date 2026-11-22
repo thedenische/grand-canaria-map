@@ -11,6 +11,27 @@ const placesEl = document.getElementById('places');
 const searchEl = document.getElementById('search');
 const childEl = document.getElementById('child-filter');
 
+const categoryIcons = {
+  'Hiking & nature': '🌲',
+  'Wild beaches': '🏖️',
+  'Natural pools': '🌊',
+  'Viewpoints': '🔭',
+  'Geology / viewpoints': '🪨',
+  'Geology / culture': '🗿',
+  'Villages / culture': '🏘️'
+};
+function categoryIcon(category) {
+  return categoryIcons[category] || '📍';
+}
+function markerIcon(category) {
+  return L.divIcon({
+    className: 'category-marker-wrap',
+    html: `<span class="category-marker" role="img" aria-label="${esc(category || 'Без категории')}">${categoryIcon(category)}</span>`,
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
+    popupAnchor: [0, -17]
+  });
+}
 function childClass(value='') {
   const v = value.toLowerCase();
   if (v.includes('не рекомендую') || v.includes('лучше без') || v.includes('не подходит')) return 'no';
@@ -51,7 +72,7 @@ fetch('data/places.json')
     const cats = [...new Set(allPlaces.map(p => p.category || 'Без категории'))].sort((a,b) => a.localeCompare(b,'ru'));
     categoriesEl.innerHTML = cats.map(c => `<label class="filter"><input type="checkbox" value="${esc(c)}" checked> ${esc(c)}</label>`).join('');
     allPlaces.forEach(p => {
-      const marker = L.marker([p.latitude,p.longitude]);
+      const marker = L.marker([p.latitude,p.longitude], { icon: markerIcon(p.category) });
       marker.bindPopup(`<div class="popup-title">${esc(p.name)}</div><div class="popup-meta">${esc(p.category || 'Без категории')}</div><div class="popup-description">${esc(p.description || '')}</div><div class="popup-child">${esc(p.child_suitability || 'Детская пригодность не оценена')}</div><a class="popup-link" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.latitude+','+p.longitude)}">Открыть в Google Maps ↗</a>`);
       markers.set(p.id, marker);
     });
