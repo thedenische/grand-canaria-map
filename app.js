@@ -40,13 +40,21 @@ function syncCategoryCheckbox(categoryId) {
 function categoryInfo(id) {
   return categoryById[id] || { id, label: 'Без категории', icon: '❔' };
 }
-function markerIcon(categoryId, subcategory) {
+function priorityInfo(priority) {
+  const priorities = {
+    must: { label: 'Must · обязательно посетить', className: 'priority-must' },
+    should: { label: 'Should · стоит посетить', className: 'priority-should' },
+    optional: { label: 'Optional · по желанию', className: 'priority-optional' }
+  };
+  return priorities[priority] || { label: 'Приоритет не задан', className: 'priority-unset' };
+}
+function markerIcon(categoryId, subcategory, priority) {
   const category = categoryInfo(categoryId);
   const sub = (subcategories[categoryId] || []).find(item => item.id === subcategory);
   const icon = sub?.icon || category.icon;
   return L.divIcon({
     className: 'category-marker-wrap',
-    html: `<span class="category-marker" role="img" aria-label="${esc(category.label)}">${icon}</span>`,
+    html: `<span class="category-marker ${priorityInfo(priority).className}" role="img" aria-label="${esc(category.label)} — ${esc(priorityInfo(priority).label)}">${icon}</span>`,
     iconSize: [36, 36],
     iconAnchor: [18, 18],
     popupAnchor: [0, -17]
@@ -100,8 +108,8 @@ fetch('data/places.json')
     allPlaces = data.filter(p => Number.isFinite(Number(p.latitude)) && Number.isFinite(Number(p.longitude)));
     categoriesEl.innerHTML = categories.map(categoryFilterMarkup).join('');
     allPlaces.forEach(p => {
-      const marker = L.marker([p.latitude,p.longitude], { icon: markerIcon(p.category, p.subcategory) });
-      marker.bindPopup(`<div class="popup-title">${esc(p.name)}</div><div class="popup-meta">${esc(categoryInfo(p.category).label + (p.subcategory ? ' · ' + ((subcategories[p.category] || []).find(s => s.id === p.subcategory)?.label || p.subcategory) : ''))}</div><div class="popup-description">${esc(p.description || '')}</div><div class="popup-child">${esc(p.child_suitability || 'Детская пригодность не оценена')}</div><a class="popup-link" target="_blank" rel="noopener" href="${googleMapsUrl(p)}">Открыть в Google Maps ↗</a>`);
+      const marker = L.marker([p.latitude,p.longitude], { icon: markerIcon(p.category, p.subcategory, p.visit_priority) });
+      marker.bindPopup(`<div class="popup-title">${esc(p.name)}</div><div class="popup-priority ${priorityInfo(p.visit_priority).className}">${esc(priorityInfo(p.visit_priority).label)}</div><div class="popup-meta">${esc(categoryInfo(p.category).label + (p.subcategory ? ' · ' + ((subcategories[p.category] || []).find(s => s.id === p.subcategory)?.label || p.subcategory) : ''))}</div><div class="popup-description">${esc(p.description || '')}</div><div class="popup-child">${esc(p.child_suitability || 'Детская пригодность не оценена')}</div><a class="popup-link" target="_blank" rel="noopener" href="${googleMapsUrl(p)}">Открыть в Google Maps ↗</a>`);
       markers.set(p.id, marker);
     });
     render();
