@@ -56,7 +56,13 @@ fetch('data/places.json')
       markers.set(p.id, marker);
     });
     render();
-    if (allPlaces.length === 1) map.setView([allPlaces[0].latitude,allPlaces[0].longitude],12);
+    if (allPlaces.length === 1) {
+      map.setView([allPlaces[0].latitude,allPlaces[0].longitude],12);
+    } else if (allPlaces.length > 1) {
+      const bounds = L.latLngBounds(allPlaces.map(p => [p.latitude, p.longitude]));
+      map.fitBounds(bounds, { padding: [28, 28], maxZoom: 10 });
+    }
+
   })
   .catch(err => { document.getElementById('count').textContent = 'Ошибка'; placesEl.textContent = err.message; });
 [searchEl, childEl].forEach(el => el.addEventListener('input', render));
