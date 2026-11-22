@@ -13,9 +13,9 @@ const childEl = document.getElementById('child-filter');
 
 function childClass(value='') {
   const v = value.toLowerCase();
-  if (v.includes('подходит') && !v.includes('условно') && !v.includes('не подходит')) return 'yes';
+  if (v.includes('не рекомендую') || v.includes('лучше без') || v.includes('не подходит')) return 'no';
   if (v.includes('условно')) return 'conditional';
-  if (v.includes('не подходит')) return 'no';
+  if (v.includes('подходит')) return 'yes';
   return 'unknown';
 }
 function esc(value='') {
