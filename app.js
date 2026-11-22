@@ -33,12 +33,14 @@ function markerIcon(categoryId) {
     popupAnchor: [0, -17]
   });
 }
-function childClass(value='') {
-  const v = value.toLowerCase();
-  if (v.includes('не рекомендую') || v.includes('лучше без') || v.includes('не подходит')) return 'no';
-  if (v.includes('условно')) return 'conditional';
-  if (v.includes('подходит')) return 'yes';
-  return 'unknown';
+function childClass(place) {
+  const ratings = {
+    good: 'yes',
+    conditional: 'conditional',
+    not_recommended: 'no',
+    unknown: 'unknown'
+  };
+  return ratings[place.child_rating] || 'unknown';
 }
 function esc(value='') {
   return String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -49,7 +51,7 @@ function render() {
   const child = childEl.value;
   const visible = allPlaces.filter(p => {
     const hay = [p.name,p.category,p.description,p.child_suitability].join(' ').toLocaleLowerCase('ru');
-    return (!query || hay.includes(query)) && checked.includes(p.category) && (child === 'all' || childClass(p.child_suitability) === child);
+    return (!query || hay.includes(query)) && checked.includes(p.category) && (child === 'all' || childClass(p) === child);
   });
   document.getElementById('count').textContent = visible.length;
   placesEl.innerHTML = visible.map(p => `<article class="place" data-id="${esc(p.id)}"><strong>${esc(p.name)}</strong><small>${esc(categoryInfo(p.category).label)}</small><small class="child">${esc(p.child_suitability || 'Детская пригодность не оценена')}</small></article>`).join('') || '<div class="hint">По заданным фильтрам ничего не найдено.</div>';
@@ -73,7 +75,7 @@ fetch('data/places.json')
     categoriesEl.innerHTML = categories.map(category => `<label class="filter"><input type="checkbox" value="${category.id}" checked><span class="legend-icon">${category.icon}</span><span>${category.label}</span></label>`).join('');
     allPlaces.forEach(p => {
       const marker = L.marker([p.latitude,p.longitude], { icon: markerIcon(p.category) });
-      marker.bindPopup(`<div class="popup-title">${esc(p.name)}</div><div class="popup-meta">${esc(p.category || 'Без категории')}</div><div class="popup-description">${esc(p.description || '')}</div><div class="popup-child">${esc(p.child_suitability || 'Детская пригодность не оценена')}</div><a class="popup-link" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.latitude+','+p.longitude)}">Открыть в Google Maps ↗</a>`);
+      marker.bindPopup(`<div class="popup-title">${esc(p.name)}</div><div class="popup-meta">${esc(categoryInfo(p.category).label)}</div><div class="popup-description">${esc(p.description || '')}</div><div class="popup-child">${esc(p.child_suitability || 'Детская пригодность не оценена')}</div><a class="popup-link" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.latitude+','+p.longitude)}">Открыть в Google Maps ↗</a>`);
       markers.set(p.id, marker);
     });
     render();
